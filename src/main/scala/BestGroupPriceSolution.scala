@@ -9,7 +9,7 @@ object BestGroupPriceSolution extends App {
             case (k, v) => (k, v.map(_.rateGroup))
         }
 
-    def getBestGroupPrices(cabinPriceList: Seq[CabinPrice], rates: Seq[Rate]) = {
+    def getBestGroupPrices(cabinPriceList: Seq[CabinPrice], rates: Seq[Rate]): Seq[BestGroupPrice] = {
         val rateCodeToGroupMap = getRateCodeToRateGroupMap(rates)
         val allPricesList = cabinPriceList.map {
             cp => BestGroupPrice(cp.cabinCode, cp.rateCode, cp.price, rateCodeToGroupMap(cp.rateCode).head)
