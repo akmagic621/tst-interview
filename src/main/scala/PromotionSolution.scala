@@ -1,5 +1,7 @@
 import models.{Promotion, PromotionCombo}
 
+import scala.annotation.tailrec
+
 object PromotionSolution extends App {
 
     val promos = Seq(
@@ -18,17 +20,37 @@ object PromotionSolution extends App {
     def allCombinablePromotions(allPromotions: Seq[Promotion]): Seq[PromotionCombo] = {
         val promosMap = getPromotionWithNonCombinableMap(allPromotions)
         println(promosMap)
-        val allPromos: List[String] = promosMap.keySet.toList
-        for {
-            pr <- allPromos
-            notCombinable = promosMap(pr) :+ pr
-            _ = println("not combinable: " + notCombinable)
-            combinablePromos = allPromos.filter(!notCombinable.contains(_))
-            _ = println("combinable for promo " + pr + "\t" + combinablePromos)
-        } yield ()
+        val allPromos: Seq[String] = promosMap.keySet.toSeq
+        val allCombinations = getAllPossibleCombinations(allPromos).filter(_.length > 1)
+        println(allCombinations)
+
+        val allCombinablePromotions = allCombinations.map {
+            combo => isEligibleCombination(combo, promosMap)
+        }
+        println("all combinable: " + allCombinablePromotions)
+
         //val asdf = recursive(allPromos)
         //println(asdf)
-        Seq()
+        allCombinablePromotions.filter(_.length > 1).map {
+            cp => PromotionCombo(cp)
+        }
+    }
+
+    private def isEligibleCombination(combo: Seq[String], promosMap: Map[String, Seq[String]]) = {
+       combo.flatMap {
+           x => combo.flatMap {
+               y => if(!promosMap.get(x).contains(y)) {
+                   println("x|y: " + x + " " + y)
+                   combo
+               } else {
+                   Seq()
+               }
+           }
+       }
+    }
+
+    private def getAllPossibleCombinations(allPromos: Seq[String]): Seq[Seq[String]] = {
+        allPromos.toSet[String].subsets.map(_.toSeq).toSeq
     }
 
 
@@ -38,7 +60,7 @@ object PromotionSolution extends App {
             case value :: t => recursive(t, value :: acc)
         }
     }
-    allCombinablePromotions(promos)
+    println(allCombinablePromotions(promos))
 
     def combinablePromotions(promotionCode: String, allPromotions: Seq[Promotion]): Seq[PromotionCombo] = ???
 }
