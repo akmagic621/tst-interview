@@ -12,7 +12,12 @@ object BestGroupPriceSolution extends App {
     def getBestGroupPrices(cabinPriceList: Seq[CabinPrice], rates: Seq[Rate]): Seq[BestGroupPrice] = {
         val rateCodeToGroupMap = getRateCodeToRateGroupMap(rates)
         val allPricesList = cabinPriceList.map {
-            cp => BestGroupPrice(cp.cabinCode, cp.rateCode, cp.price, rateCodeToGroupMap(cp.rateCode).head)
+            cp =>
+                val rateGroup = rateCodeToGroupMap.get(cp.rateCode).headOption match {
+                    case Some(seq) => seq.head
+                    case _ => ""
+                }
+                BestGroupPrice(cp.cabinCode, cp.rateCode, cp.price, rateGroup)
         }
 
         val groupedAllPricesList = allPricesList.groupBy(
